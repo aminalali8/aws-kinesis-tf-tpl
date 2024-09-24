@@ -14,7 +14,7 @@ categories:
 stack:
   packages:
     - name: Terraform 
-      version: 1.5 
+      version: "1.5" 
 variables:
   - description: 'A unique name for your Kinesis Stream.'
     name: 'stream_name'
