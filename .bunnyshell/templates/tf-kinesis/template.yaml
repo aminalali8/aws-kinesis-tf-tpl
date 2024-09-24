@@ -1,9 +1,9 @@
 # Template Documentation
-name: Terraform AWS Lambda
-description: The template is used to create a Lambda Function in AWS using Terraform.
+name: Terraform AWS Kinesis Stream
+description: The template is used to create a AWS Kinesis Stream using Terraform.
 tags:
     - terraform
-    - lambda
+    - kinesis
     - aws
     - serverless
 icons: [ 'terraform','aws' ]
@@ -13,67 +13,50 @@ categories:
     - aws
 stack:
   packages:
-    - name: Package name
-      version: 'Specify Version' #must be an integer
+    - name: Terraform 
+      version: 1.5 
 variables:
-  - description: 'A unique name for your Lambda Function.'  
-    name: 'function_name'
+  - description: 'A unique name for your Kinesis Stream.'
+    name: 'stream_name'
     type: 'string'
-  - description: 'The path to the function's deployment package within the local filesystem. If defined. No S3 support'  
-    name: 'filename'
+
+  - description: 'The number of shards for the Kinesis stream.'
+    name: 'shard_count'
+    type: 'number'
+
+  - description: 'The retention period for the Kinesis stream in hours.'
+    name: 'retention_period'
+    type: 'number'
+
+  - description: 'The encryption type for the Kinesis stream. Can be NONE or KMS.'
+    name: 'encryption_type'
     type: 'string'
-  - description: 'Description of what your Lambda Function does.'  
-    name: 'description'
+
+  - description: 'The KMS key ID or alias to use for encryption. Required if encryption_type is KMS.'
+    name: 'kms_key_id'
     type: 'string'
-  - description: 'See Runtimes for valid values.'  
-    name: 'runtime'
+
+  - description: 'A list of shard-level metrics to enable for the Kinesis stream.'
+    name: 'shard_level_metrics'
+    type: 'list(string)'
+
+  - description: 'The capacity mode of the Kinesis stream. Must be either PROVISIONED or ON_DEMAND.'
+    name: 'stream_mode'
     type: 'string'
-  - description: 'The function entrypoint in your code.'  
-    name: 'handler'
+
+  - description: 'Indicates whether to enforce consumer deletion before the Kinesis stream is destroyed.'
+    name: 'enforce_consumer_deletion'
+    type: 'bool'
+
+  - description: 'Timeout for creating the Kinesis stream.'
+    name: 'create_timeout'
     type: 'string'
-  - description: 'Amount of memory in MB your Lambda Function can use at runtime. Defaults to 128.'  
-    name: 'memory_size'
+
+  - description: 'Timeout for updating the Kinesis stream.'
+    name: 'update_timeout'
     type: 'string'
-  - description: 'The amount of reserved concurrent executions for this lambda function. A value of 0 disables lambda'  
-    name: 'concurrency'
-    type: 'string'
-  - description: 'The amount of time your Lambda Function has to run in seconds. Defaults to 5'  
-    name: 'lambda_timeout'
-    type: 'string'
-  - description: 'IAM role attached to the Lambda Function. This governs both who / what can invoke your Lambda'  
-    name: 'role_arn'
-    type: 'string'
-  - description: 'A mapping of tags to assign to the object.'  
-    name: 'tags'
-    type: 'string'
-  - description: 'Provide this to allow your function to access your VPC. Fields documented below. See Lambda in VPC.'  
-    name: 'vpc_config'
-    type: 'string'
-  - description: 'Provide this to allow your function to mount your EFS file system. Fields documented below. See Lambda'  
-    name: 'file_system_config'
-    type: 'string'
-  - description: 'Use AWS X-Ray to collect data about events that your function processes, and to identify the cause of'  
-    name: 'tracing_config'
-    type: 'string'
-  - description: 'The Lambda environment's configuration settings.'  
-    name: 'environment'
-    type: 'string'
-  - description: 'Whether to publish creation/change as new Lambda Function Version. Defaults to true.'  
-    name: 'publish'
-    type: 'string'
-  - description: 'Specifies the number of days you want to retain log events in the specified log group.'  
-    name: 'log_retention'
-    type: 'string'
-  - description: 'Maximum age of a request that Lambda sends to a function for processing in seconds. Valid values'  
-    name: 'event_age_in_seconds'
-    type: 'string'
-  - description: 'Maximum number of times to retry when the function returns an error. Valid values between 0 and 2.'  
-    name: 'retry_attempts'
-    type: 'string'
-  - description: 'Used to trigger updates when file contents change.  Must be set to a base64-encoded SHA256 hash of the'  
-    name: 'source_code_hash'
-    type: 'string'
-  - description: 'List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function'  
-    name: 'layers'
+
+  - description: 'Timeout for deleting the Kinesis stream.'
+    name: 'delete_timeout'
     type: 'string'
 discoverable: true

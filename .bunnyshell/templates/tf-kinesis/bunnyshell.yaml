@@ -3,26 +3,17 @@ kind: Environment
 name: tf-lambda
 type: primary
 templateVariables: 
-    function_name: "REQUIRED - A unique name for your Lambda Function."
-    filename: "REQUIRED - The path to the function's deployment package within the local filesystem. If defined. No S3 support"
-    description: "OPTIONAL - Description of what your Lambda Function does."
-    runtime: "REQUIRED - See Runtimes for valid values."
-    handler: "REQUIRED - The function entrypoint in your code."
-    memory_size: "OPTIONAL - Amount of memory in MB your Lambda Function can use at runtime. Defaults to 128."
-    concurrency: "OPTIONAL - The amount of reserved concurrent executions for this lambda function. A value of 0 disables lambda"
-    lambda_timeout: "OPTIONAL - The amount of time your Lambda Function has to run in seconds. Defaults to 5"
-    role_arn: "REQUIRED - IAM role attached to the Lambda Function. This governs both who / what can invoke your Lambda"
-    tags: "OPTIONAL - A mapping of tags to assign to the object."
-    vpc_config: "OPTIONAL - Provide this to allow your function to access your VPC. Fields documented below. See Lambda in VPC."
-    file_system_config: "OPTIONAL - Provide this to allow your function to mount your EFS file system. Fields documented below. See Lambda"
-    tracing_config: "OPTIONAL - Use AWS X-Ray to collect data about events that your function processes, and to identify the cause of"
-    environment: "OPTIONAL - The Lambda environment's configuration settings."
-    publish: "OPTIONAL - Whether to publish creation/change as new Lambda Function Version. Defaults to true."
-    log_retention: "OPTIONAL - Specifies the number of days you want to retain log events in the specified log group."
-    event_age_in_seconds: "OPTIONAL - Maximum age of a request that Lambda sends to a function for processing in seconds. Valid values"
-    retry_attempts: "OPTIONAL - Maximum number of times to retry when the function returns an error. Valid values between 0 and 2."
-    source_code_hash: "OPTIONAL - Used to trigger updates when file contents change.  Must be set to a base64-encoded SHA256 hash of the"
-    layers: "OPTIONAL - List of Lambda Layer Version ARNs (maximum of 5) to attach to your Lambda Function"
+    stream_name           = "kinesis-stream-{{env.unique}}"
+    shard_count           = 1
+    retention_period      = 24  # In hours
+    encryption_type       = "NONE"  # Can be "NONE" or "KMS"
+    kms_key_id            = null  # Leave this if using AWS-managed key
+    shard_level_metrics   = ["IncomingBytes", "OutgoingBytes"]  # List of metrics to enable
+    stream_mode             = "PROVISIONED"  # Can be "PROVISIONED" or "ON_DEMAND"
+    enforce_consumer_deletion = false
+    create_timeout   = "5m"
+    update_timeout   = "5m"
+    delete_timeout   = "5m"
 environmentVariables: 
     AWS_ACCESS_KEY_ID: "REQUIRED"
     AWS_SECRET_ACCESS_KEY: "REQUIRED"
@@ -38,70 +29,51 @@ components:
         runnerImage: "hashicorp/terraform:1.5"
         deploy:
         - |
-            echo <<EOL > variables.tfvars
-            function_name = "{{ template.vars.function_name }}"
-            filename = "{{ template.vars.filename }}"
-            description = "{{ template.vars.description }}"
-            runtime = "{{ template.vars.runtime }}"
-            handler = "{{ template.vars.handler }}"
-            memory_size = "{{ template.vars.memory_size }}"
-            concurrency = "{{ template.vars.concurrency }}"
-            lambda_timeout = "{{ template.vars.lambda_timeout }}"
-            role_arn = "{{ template.vars.role_arn }}"
-            tags = "{{ template.vars.tags }}"
-            vpc_config = "{{ template.vars.vpc_config }}"
-            file_system_config = "{{ template.vars.file_system_config }}"
-            tracing_config = "{{ template.vars.tracing_config }}"
-            environment = "{{ template.vars.environment }}"
-            publish = "{{ template.vars.publish }}"
-            log_retention = "{{ template.vars.log_retention }}"
-            event_age_in_seconds = "{{ template.vars.event_age_in_seconds }}"
-            retry_attempts = "{{ template.vars.retry_attempts }}"
-            source_code_hash = "{{ template.vars.source_code_hash }}"
-            layers = "{{ template.vars.layers }}"
+            echo <<EOL > terraform.tfvars
+            stream_name           = {{ template.vars.stream_name }}
+            shard_count           = {{ template.vars.shard_count }}
+            retention_period      = {{ template.vars.retention_period }}
+            encryption_type       = {{ template.vars.encryption_type }}
+            kms_key_id            = {{ template.vars.kms_key_id }}
+            shard_level_metrics   = {{ template.vars.shard_level_metrics }}
+            stream_mode           = {{ template.vars.stream_mode }}
+            enforce_consumer_deletion = {{ template.vars.enforce_consumer_deletion }}
+            tags = {
+                Environment = "prod"
+                Project     = "MyKinesisProject"
+            }
+            aws_region       = "{{env.vars.aws_region}}"
+            aws_access_key   = "{{env.vars.aws_access_key}}"
+            aws_secret_key   = "{{env.vars.aws_secret_key}}"
+            create_timeout   = {{ template.vars.create_timeout }}
+            update_timeout   = {{ template.vars.update_timeout }}
+            delete_timeout   = {{ template.vars.delete_timeout }}
             EOL
         - "/bns/helpers/terraform/get_managed_backend > zz_backend_override.tf"
         - "terraform init -input=false -no-color"
-        - 'terraform apply -var-file="variables.tfvars" -input=false -auto-approve -no-color'
-        - "BNS_TF_STATE_LIST=`terraform show -json`"
-        - "arn = `terraform output -raw arn`" 
-        - "version = `terraform output -raw version`" 
-        - "name = `terraform output -raw name`" 
-        - "invoke_arn = `terraform output -raw invoke_arn`" 
-        - "cloudwatch_logs_arn = `terraform output -raw cloudwatch_logs_arn`" 
-        - "cloudwatch_logs_name = `terraform output -raw cloudwatch_logs_name`" 
+        - 'terraform apply -input=false -auto-approve -no-color' 
         destroy:
         - |
             echo <<EOL > variables.tfvars
-            function_name = "{{ template.vars.function_name }}"
-            filename = "{{ template.vars.filename }}"
-            description = "{{ template.vars.description }}"
-            runtime = "{{ template.vars.runtime }}"
-            handler = "{{ template.vars.handler }}"
-            memory_size = "{{ template.vars.memory_size }}"
-            concurrency = "{{ template.vars.concurrency }}"
-            lambda_timeout = "{{ template.vars.lambda_timeout }}"
-            role_arn = "{{ template.vars.role_arn }}"
-            tags = "{{ template.vars.tags }}"
-            vpc_config = "{{ template.vars.vpc_config }}"
-            file_system_config = "{{ template.vars.file_system_config }}"
-            tracing_config = "{{ template.vars.tracing_config }}"
-            environment = "{{ template.vars.environment }}"
-            publish = "{{ template.vars.publish }}"
-            log_retention = "{{ template.vars.log_retention }}"
-            event_age_in_seconds = "{{ template.vars.event_age_in_seconds }}"
-            retry_attempts = "{{ template.vars.retry_attempts }}"
-            source_code_hash = "{{ template.vars.source_code_hash }}"
-            layers = "{{ template.vars.layers }}"
+            stream_name           = {{ template.vars.stream_name }}
+            shard_count           = {{ template.vars.shard_count }}
+            retention_period      = {{ template.vars.retention_period }}
+            encryption_type       = {{ template.vars.encryption_type }}
+            kms_key_id            = {{ template.vars.kms_key_id }}
+            shard_level_metrics   = {{ template.vars.shard_level_metrics }}
+            stream_mode           = {{ template.vars.stream_mode }}
+            enforce_consumer_deletion = {{ template.vars.enforce_consumer_deletion }}
+            tags = {
+                Environment = "prod"
+                Project     = "MyKinesisProject"
+            }
+            aws_region       = "{{env.vars.aws_region}}"
+            aws_access_key   = "{{env.vars.aws_access_key}}"
+            aws_secret_key   = "{{env.vars.aws_secret_key}}"
+            create_timeout   = {{ template.vars.create_timeout }}
+            update_timeout   = {{ template.vars.update_timeout }}
+            delete_timeout   = {{ template.vars.delete_timeout }}
             EOL
         - "/bns/helpers/terraform/get_managed_backend > zz_backend_override.tf"
         - "terraform init -input=false -no-color"
-        - 'terraform destroy -var-file="variables.tfvars"  -input=false -auto-approve -no-color'
-        exportVariables:
-        - arn
-        - version
-        - name
-        - invoke_arn
-        - cloudwatch_logs_arn
-        - cloudwatch_logs_name
-# Add your configuration here
+        - 'terraform destroy  -input=false -auto-approve -no-color'
