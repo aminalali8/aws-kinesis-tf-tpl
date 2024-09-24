@@ -38,7 +38,7 @@ variables:
 
   - description: 'A list of shard-level metrics to enable for the Kinesis stream.'
     name: 'shard_level_metrics'
-    type: 'list(string)'
+    type: 'string'
 
   - description: 'The capacity mode of the Kinesis stream. Must be either PROVISIONED or ON_DEMAND.'
     name: 'stream_mode'
