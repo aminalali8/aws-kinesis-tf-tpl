@@ -23,7 +23,7 @@ components:
     - 
         kind: Terraform
         name: lambda
-        gitRepo: "https://github.com/bunnyshell/templates.git"
+        gitRepo: "https://github.com/aminalali8/aws-kinesis-tf-tpl.git"
         gitBranch: main
         gitApplicationPath: /
         runnerImage: "hashicorp/terraform:1.5"
