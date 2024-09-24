@@ -22,11 +22,11 @@ variables:
 
   - description: 'The number of shards for the Kinesis stream.'
     name: 'shard_count'
-    type: 'number'
+    type: 'int'
 
   - description: 'The retention period for the Kinesis stream in hours.'
     name: 'retention_period'
-    type: 'number'
+    type: 'int'
 
   - description: 'The encryption type for the Kinesis stream. Can be NONE or KMS.'
     name: 'encryption_type'
