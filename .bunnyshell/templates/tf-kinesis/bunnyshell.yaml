@@ -51,7 +51,7 @@ components:
             - 'terraform apply -input=false -auto-approve -no-color'
         destroy:
             - |
-                echo <<EOL > variables.tfvars
+                echo <<EOL > terraform.tfvars
                 stream_name           = "{{ template.vars.stream_name }}"
                 shard_count           = "{{ template.vars.shard_count }}"
                 retention_period      = "{{ template.vars.retention_period }}"
