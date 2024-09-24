@@ -1,19 +1,19 @@
 # Bunnyshell YAML Configuration
 kind: Environment
-name: tf-lambda
+name: aws-kinesis-tf
 type: primary
 templateVariables: 
-    stream_name           = "kinesis-stream-{{env.unique}}"
-    shard_count           = 1
-    retention_period      = 24  # In hours
-    encryption_type       = "NONE"  # Can be "NONE" or "KMS"
-    kms_key_id            = null  # Leave this if using AWS-managed key
-    shard_level_metrics   = ["IncomingBytes", "OutgoingBytes"]  # List of metrics to enable
-    stream_mode             = "PROVISIONED"  # Can be "PROVISIONED" or "ON_DEMAND"
+    stream_name = "kinesis-stream-{{env.unique}}"
+    shard_count = 1
+    retention_period = 24  # In hours
+    encryption_type = "NONE"  # Can be "NONE" or "KMS"
+    kms_key_id = null  # Leave this if using AWS-managed key
+    shard_level_metrics = ["IncomingBytes", "OutgoingBytes"]  # List of metrics to enable
+    stream_mode = "PROVISIONED"  # Can be "PROVISIONED" or "ON_DEMAND"
     enforce_consumer_deletion = false
-    create_timeout   = "5m"
-    update_timeout   = "5m"
-    delete_timeout   = "5m"
+    create_timeout = "5m"
+    update_timeout = "5m"
+    delete_timeout = "5m"
 environmentVariables: 
     AWS_ACCESS_KEY_ID: "REQUIRED"
     AWS_SECRET_ACCESS_KEY: "REQUIRED"
