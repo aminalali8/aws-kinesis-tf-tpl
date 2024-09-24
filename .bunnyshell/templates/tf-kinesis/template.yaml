@@ -36,10 +36,6 @@ variables:
     name: 'kms_key_id'
     type: 'string'
 
-  - description: 'A list of shard-level metrics to enable for the Kinesis stream.'
-    name: 'shard_level_metrics'
-    type: 'string'
-
   - description: 'The capacity mode of the Kinesis stream. Must be either PROVISIONED or ON_DEMAND.'
     name: 'stream_mode'
     type: 'string'
