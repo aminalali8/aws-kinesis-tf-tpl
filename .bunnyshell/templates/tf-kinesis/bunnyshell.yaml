@@ -20,7 +20,7 @@ environmentVariables:
 components:
     -
         kind: Terraform
-        name: lambda
+        name: kinesis
         gitRepo: 'https://github.com/aminalali8/aws-kinesis-tf-tpl.git'
         gitBranch: main
         gitApplicationPath: /
