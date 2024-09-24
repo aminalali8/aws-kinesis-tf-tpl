@@ -2,15 +2,15 @@
 name: Terraform AWS Kinesis Stream
 description: The template is used to create a AWS Kinesis Stream using Terraform.
 tags:
-    - terraform
-    - kinesis
-    - aws
-    - serverless
+  - terraform
+  - kinesis
+  - aws
+  - serverless
 icons: [ 'terraform','aws' ]
 categories:
-    - terraform
-    - cloud
-    - aws
+  - terraform
+  - cloud
+  - aws
 stack:
   packages:
     - name: Terraform 
