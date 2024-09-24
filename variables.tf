@@ -1,9 +1,9 @@
 # -------------- PROVIDER VARIABLES ------------------------------------------------------
-variable "aws_region" {
-  description = "The AWS region to create the Kinesis stream in."
-  type        = string
-  default     = "us-west-2"
-}
+# variable "aws_region" {
+#   description = "The AWS region to create the Kinesis stream in."
+#   type        = string
+#   default     = "us-west-2"
+# }
 
 # variable "aws_access_key"{
 #   description = "The AWS access key."

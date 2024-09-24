@@ -42,7 +42,7 @@ variables:
 
   - description: 'Indicates whether to enforce consumer deletion before the Kinesis stream is destroyed.'
     name: 'enforce_consumer_deletion'
-    type: 'bool'
+    type: 'string'
 
   - description: 'Timeout for creating the Kinesis stream.'
     name: 'create_timeout'

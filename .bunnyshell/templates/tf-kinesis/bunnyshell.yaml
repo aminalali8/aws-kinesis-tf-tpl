@@ -8,14 +8,15 @@ templateVariables:
     encryption_type: NONE
     kms_key_id: null
     stream_mode: PROVISIONED
-    enforce_consumer_deletion: false
+    enforce_consumer_deletion: "false"
     create_timeout: 5m
     update_timeout: 5m
     delete_timeout: 5m
 environmentVariables:
-    aws_access_key: REQUIRED
-    aws_secret_key: REQUIRED
-    aws_region: REQUIRED
+    AWS_ACCESS_KEY_ID: "REQ"
+    AWS_SECRET_ACCESS_KEY: "REQ"
+    AWS_SESSION_TOKEN: "REQ"
+    AWS_REGION: "REQ"
 components:
     -
         kind: Terraform
@@ -26,47 +27,41 @@ components:
         runnerImage: 'hashicorp/terraform:1.5'
         deploy:
             - |
-                echo <<EOL > terraform.tfvars
-                    stream_name           = "{{ template.vars.stream_name }}"
-                    shard_count           = "{{ template.vars.shard_count }}"
-                    retention_period      = "{{ template.vars.retention_period }}"
-                    encryption_type       = "{{ template.vars.encryption_type }}"
-                    kms_key_id            = "{{ template.vars.kms_key_id }}"
-                    shard_level_metrics   = ["IncomingBytes", "OutgoingBytes"]
-                    stream_mode           = "{{ template.vars.stream_mode }}"
-                    enforce_consumer_deletion = "{{ template.vars.enforce_consumer_deletion }}"
-                    tags = {
-                        Environment = "prod"
-                        Project     = "MyKinesisProject"
-                    }
-                    aws_region       = "{{env.vars.aws_region}}"
-                    aws_access_key   = "{{env.vars.aws_access_key}}"
-                    aws_secret_key   = "{{env.vars.aws_secret_key}}"
-                    create_timeout   = "{{ template.vars.create_timeout }}"
-                    update_timeout   = "{{ template.vars.update_timeout }}"
-                    delete_timeout   = "{{ template.vars.delete_timeout }}"
+                cat <<EOL > terraform.tfvars
+                stream_name           = "{{ template.vars.stream_name }}"
+                shard_count           = {{ template.vars.shard_count }}
+                retention_period      = {{ template.vars.retention_period }}
+                encryption_type       = "{{ template.vars.encryption_type }}"
+                kms_key_id            = "{{ template.vars.kms_key_id }}"
+                shard_level_metrics   = ["IncomingBytes", "OutgoingBytes"]
+                stream_mode           = "{{ template.vars.stream_mode }}"
+                enforce_consumer_deletion = {{ template.vars.enforce_consumer_deletion }}
+                tags = {
+                    Environment = "prod"
+                    Project     = "MyKinesisProject"
+                }
+                create_timeout   = "{{ template.vars.create_timeout }}"
+                update_timeout   = "{{ template.vars.update_timeout }}"
+                delete_timeout   = "{{ template.vars.delete_timeout }}"
                 EOL
             - '/bns/helpers/terraform/get_managed_backend > zz_backend_override.tf'
             - 'terraform init -input=false -no-color'
             - 'terraform apply -input=false -auto-approve -no-color'
         destroy:
             - |
-                echo <<EOL > terraform.tfvars
+                cat <<EOL > terraform.tfvars
                 stream_name           = "{{ template.vars.stream_name }}"
-                shard_count           = "{{ template.vars.shard_count }}"
-                retention_period      = "{{ template.vars.retention_period }}"
+                shard_count           = {{ template.vars.shard_count }}
+                retention_period      = {{ template.vars.retention_period }}
                 encryption_type       = "{{ template.vars.encryption_type }}"
                 kms_key_id            = "{{ template.vars.kms_key_id }}"
                 shard_level_metrics   = ["IncomingBytes", "OutgoingBytes"]
                 stream_mode           = "{{ template.vars.stream_mode }}"
-                enforce_consumer_deletion = "{{ template.vars.enforce_consumer_deletion }}"
+                enforce_consumer_deletion = {{ template.vars.enforce_consumer_deletion }}
                 tags = {
                     Environment = "prod"
                     Project     = "MyKinesisProject"
                 }
-                aws_region       = "{{env.vars.aws_region}}"
-                aws_access_key   = "{{env.vars.aws_access_key}}"
-                aws_secret_key   = "{{env.vars.aws_secret_key}}"
                 create_timeout   = "{{ template.vars.create_timeout }}"
                 update_timeout   = "{{ template.vars.update_timeout }}"
                 delete_timeout   = "{{ template.vars.delete_timeout }}"
