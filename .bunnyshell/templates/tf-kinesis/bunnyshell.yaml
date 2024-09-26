@@ -1,22 +1,22 @@
 kind: Environment
-name: tf-test
+name: 'Copy of test-kinesis'
 type: primary
 templateVariables:
     stream_name: 'kinesis-stream-{{env.unique}}'
     shard_count: 1
     retention_period: 24
     encryption_type: NONE
-    kms_key_id: null
+    kms_key_id: 'null'
     stream_mode: PROVISIONED
-    enforce_consumer_deletion: "false"
+    enforce_consumer_deletion: false
     create_timeout: 5m
     update_timeout: 5m
     delete_timeout: 5m
 environmentVariables:
-    AWS_ACCESS_KEY_ID: "REQ"
-    AWS_SECRET_ACCESS_KEY: "REQ"
-    AWS_SESSION_TOKEN: "REQ"
-    AWS_REGION: "REQ"
+    AWS_ACCESS_KEY_ID: YOUR-ACCESS-KEY #REQ
+    AWS_REGION: YOUR-REGION #REQ
+    AWS_SECRET_ACCESS_KEY: YOUR-SECRET-ACCESS-KEY #REQ
+    AWS_SESSION_TOKEN: YOUR-SSO-TOKEN #OPT
 components:
     -
         kind: Terraform
@@ -29,13 +29,12 @@ components:
             - |
                 cat <<EOL > terraform.tfvars
                 stream_name           = "{{ template.vars.stream_name }}"
-                shard_count           = {{ template.vars.shard_count }}
-                retention_period      = {{ template.vars.retention_period }}
+                shard_count           = "{{ template.vars.shard_count }}"
+                retention_period      = "{{ template.vars.retention_period }}"
                 encryption_type       = "{{ template.vars.encryption_type }}"
                 kms_key_id            = "{{ template.vars.kms_key_id }}"
                 shard_level_metrics   = ["IncomingBytes", "OutgoingBytes"]
                 stream_mode           = "{{ template.vars.stream_mode }}"
-                enforce_consumer_deletion = {{ template.vars.enforce_consumer_deletion }}
                 tags = {
                     Environment = "prod"
                     Project     = "MyKinesisProject"
@@ -45,19 +44,21 @@ components:
                 delete_timeout   = "{{ template.vars.delete_timeout }}"
                 EOL
             - '/bns/helpers/terraform/get_managed_backend > zz_backend_override.tf'
+            - 'ls -la'
+            - 'cat terraform.tfvars'
             - 'terraform init -input=false -no-color'
-            - 'terraform apply -input=false -auto-approve -no-color'
+            - 'terraform plan -var-file=terraform.tfvars -input=false -no-color'
+            - 'terraform apply -var-file=terraform.tfvars -input=false -auto-approve -no-color'
         destroy:
             - |
                 cat <<EOL > terraform.tfvars
                 stream_name           = "{{ template.vars.stream_name }}"
-                shard_count           = {{ template.vars.shard_count }}
-                retention_period      = {{ template.vars.retention_period }}
+                shard_count           = "{{ template.vars.shard_count }}"
+                retention_period      = "{{ template.vars.retention_period }}"
                 encryption_type       = "{{ template.vars.encryption_type }}"
                 kms_key_id            = "{{ template.vars.kms_key_id }}"
                 shard_level_metrics   = ["IncomingBytes", "OutgoingBytes"]
                 stream_mode           = "{{ template.vars.stream_mode }}"
-                enforce_consumer_deletion = {{ template.vars.enforce_consumer_deletion }}
                 tags = {
                     Environment = "prod"
                     Project     = "MyKinesisProject"
@@ -68,4 +69,4 @@ components:
                 EOL
             - '/bns/helpers/terraform/get_managed_backend > zz_backend_override.tf'
             - 'terraform init -input=false -no-color'
-            - 'terraform destroy  -input=false -auto-approve -no-color'
+            - 'terraform destroy -var-file=terraform.tfvars -input=false -auto-approve -no-color'
